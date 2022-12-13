@@ -33,7 +33,7 @@ alter table orders add constraint wp primary key (ord_no);
 
 --create Salesman 
 create table salesman(names varchar(30) not null,city varchar(30),commission money,salesman_id int)
-insert into salesman values('James Hoog','New York',0.15,5001),
+insert into salesman values('James Hoo','New York',0.15,5001),
 							('Nail Knite','Paris',0.13,5002),
 							('Lauson Hen','San Jose',0.12,5003),
 							('Pit Alex','London',0.11,5005),
@@ -52,27 +52,27 @@ select * from orders;
 
 -- create procedure
 
-create proc saless
+alter proc saless
 @names varchar(20),@city varchar(20),@cust_name varchar(20),@ord_no int,@ord_date date,@purch_amt money ,@grade int
 as 
 begin
 begin transaction 
-if exists (SELECT b.names AS "Salesman",a.city, 
-							a.cust_name, c.ord_no, c.ord_date, c.purch_amt ,a.Grade
-							FROM customer a 
-							INNER JOIN salesman b  ON b.salesman_id=a.salesman_id 
-							INNER JOIN orders c ON c.cust_id=a.cust_id 
-							WHERE ord_no=@ord_no)
+if exists (select * from new_tb where ord_no=@ord_no)
 update sales set salesman=@names where ord_no=@ord_no
-else insert into sales(Salesman,city,cust_name,ord_no,ord_date,purch_amt,grade)
+else 
+insert into sales(Salesman,city,cust_name,ord_no,ord_date,purch_amt,grade)
 values (@names,@city,@cust_name,@ord_no,@ord_date,@purch_amt,@grade)
 commit 
 end 
 
+-- create table to add data
+create table Sales (Salesman varchar(30)foreign key references salesman(Names),city varchar(20),cust_name varchar(30)foreign key references customer(cust_Name),
+ord_no int foreign key references orders(ord_no),ord_date date,purch_amt money,grade int,time datetime default(current_timestamp));
 
-create table Sales (Salesman varchar(40),city varchar(20),cust_name varchar(50),ord_no int,ord_date date,purch_amt money,grade int,time datetime default(current_timestamp));
 
 select *from sales;
 
-exec saless 'james hoog','new york','nick rimando',70008,'2012-09-10',5760,100
+--run procedure
+exec saless 'james hoog','new york','nick rimando',70008,'2012-09-10',5760,100 
 
+drop  table sales
